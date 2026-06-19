@@ -1,20 +1,58 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import {
   Github, Linkedin, Mail, Download, ArrowRight, ArrowUpRight, ExternalLink,
   Brain, Code2, Database, Wrench, Trophy, Briefcase, Layers,
   FileText, Send, MapPin, GraduationCap, Award, Rocket, Cpu, Shield,
-  Activity, Zap, Stethoscope,
+  Activity, Zap, Stethoscope, Sparkles, Terminal, Globe, ChevronRight,
+  Star, TrendingUp, Users, BookOpen, Coffee,
 } from "lucide-react";
 
-/* ============================================================
-   Shared atoms
-   ============================================================ */
+/* ─── Palette tokens ────────────────────────────────────────── */
+const BRAND = "#FF6B35";
+const VIOLET = "#A855F7";
+const GOLD = "#F59E0B";
+const DIM = "#8892A4";
+
+/* ─── Shared helpers ─────────────────────────────────────────── */
+
+function Tag({ children, variant = "default" }: { children: React.ReactNode; variant?: "brand" | "violet" | "gold" | "default" }) {
+  const styles = {
+    brand: { background: "rgba(255,107,53,0.12)", border: "1px solid rgba(255,107,53,0.3)", color: BRAND },
+    violet: { background: "rgba(168,85,247,0.12)", border: "1px solid rgba(168,85,247,0.3)", color: VIOLET },
+    gold: { background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.3)", color: GOLD },
+    default: { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)", color: DIM },
+  }[variant];
+
+  return (
+    <span
+      className="inline-flex items-center rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-[0.15em]"
+      style={styles}
+    >
+      {children}
+    </span>
+  );
+}
+
+function GradientDot() {
+  return (
+    <span
+      className="inline-block h-1.5 w-1.5 rounded-full"
+      style={{ background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`, boxShadow: `0 0 6px ${BRAND}` }}
+    />
+  );
+}
 
 function Kicker({ children }: { children: React.ReactNode }) {
   return (
-    <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-      <span className="h-1.5 w-1.5 rounded-full bg-brand shadow-[0_0_8px_var(--brand)]" />
+    <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-[0.18em]"
+      style={{
+        background: "rgba(255,107,53,0.08)",
+        border: "1px solid rgba(255,107,53,0.22)",
+        color: BRAND,
+      }}
+    >
+      <GradientDot />
       {children}
     </div>
   );
@@ -25,26 +63,58 @@ function SectionHeader({
 }: { kicker: string; title: React.ReactNode; sub?: string; align?: "left" | "center" }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
       className={`mb-16 ${align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-3xl"}`}
     >
       <Kicker>{kicker}</Kicker>
-      <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight text-foreground sm:text-5xl md:text-[3.5rem] md:leading-[1.05]">
+      <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl md:text-[3.5rem] md:leading-[1.05]"
+        style={{ color: "#F0F4FF" }}>
         {title}
       </h2>
-      {sub && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">{sub}</p>}
+      {sub && (
+        <p className="mt-5 max-w-2xl text-lg leading-relaxed" style={{ color: DIM }}>{sub}</p>
+      )}
     </motion.div>
   );
 }
 
-/* ============================================================
-   HERO
-   ============================================================ */
+/* Premium card wrapper */
+function PremiumCard({ children, className = "", delay = 0, hover = true }:
+  { children: React.ReactNode; className?: string; delay?: number; hover?: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+      className={`group relative overflow-hidden rounded-2xl transition-all duration-300 ${className}`}
+      style={{
+        background: "linear-gradient(145deg, rgba(15,21,40,0.9) 0%, rgba(10,14,28,0.9) 100%)",
+        border: "1px solid rgba(255,255,255,0.07)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
+      }}
+      whileHover={hover ? {
+        borderColor: "rgba(255,107,53,0.3)",
+        boxShadow: "0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,107,53,0.15), inset 0 1px 0 rgba(255,255,255,0.08)",
+        y: -2,
+      } : {}}
+    >
+      {/* Top shimmer line */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, transparent, ${BRAND}, ${VIOLET}, transparent)` }}
+      />
+      {children}
+    </motion.div>
+  );
+}
 
-const ROLES = ["AI Systems Architect", "Full Stack Developer", "Startup Builder"];
+/* ─── HERO ────────────────────────────────────────────────────── */
+
+const ROLES = ["AI Systems Architect", "Full Stack Developer", "Startup Builder", "Healthcare Tech Innovator"];
 
 function Typewriter() {
   const [idx, setIdx] = useState(0);
@@ -53,12 +123,12 @@ function Typewriter() {
 
   useEffect(() => {
     const current = ROLES[idx];
-    const speed = del ? 35 : 65;
+    const speed = del ? 30 : 60;
     const t = setTimeout(() => {
       if (!del) {
         const next = current.slice(0, text.length + 1);
         setText(next);
-        if (next === current) setTimeout(() => setDel(true), 1600);
+        if (next === current) setTimeout(() => setDel(true), 1800);
       } else {
         const next = current.slice(0, text.length - 1);
         setText(next);
@@ -69,154 +139,311 @@ function Typewriter() {
   }, [text, del, idx]);
 
   return (
-    <span className="font-mono text-brand-2">
-      {text}<span className="animate-blink ml-0.5">|</span>
+    <span className="font-mono" style={{ color: BRAND }}>
+      {text}
+      <motion.span
+        animate={{ opacity: [1, 0, 1] }}
+        transition={{ duration: 0.9, repeat: Infinity }}
+        style={{ color: VIOLET }}
+      >|</motion.span>
     </span>
   );
 }
 
 const HERO_STATS = [
-  { value: "5+", label: "Projects" },
-  { value: "5+", label: "Hackathons" },
-  { value: "8.1", label: "CGPA" },
-  { value: "3rd Yr", label: "B.Tech AIML" },
+  { value: "5+", label: "Projects Shipped", icon: Rocket },
+  { value: "5+", label: "Hackathons", icon: Trophy },
+  { value: "8.1", label: "CGPA", icon: Star },
+  { value: "3rd", label: "Year B.Tech", icon: GraduationCap },
 ];
+
+/* Ticker banner */
+const TICKER_ITEMS = [
+  "AI/ML Engineer", "React Developer", "Node.js Backend", "Healthcare Tech",
+  "FinTech Builder", "Open Source", "Startup Mindset", "MAIT · GGSIPU",
+  "New Delhi, India", "Available for Internships",
+];
+
+function TickerBanner() {
+  const doubled = [...TICKER_ITEMS, ...TICKER_ITEMS];
+  return (
+    <div className="relative overflow-hidden py-3" style={{
+      background: "rgba(255,107,53,0.06)",
+      borderTop: "1px solid rgba(255,107,53,0.15)",
+      borderBottom: "1px solid rgba(255,107,53,0.15)",
+    }}>
+      <motion.div
+        className="flex whitespace-nowrap"
+        animate={{ x: [0, "-50%"] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+      >
+        {doubled.map((item, i) => (
+          <span key={i} className="mx-8 font-mono text-xs uppercase tracking-widest flex items-center gap-2"
+            style={{ color: i % 2 === 0 ? BRAND : DIM }}>
+            <span style={{ color: VIOLET }}>✦</span> {item}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
 
 export function HeroSection() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 120]);
-  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
-    <section ref={ref} id="home" className="relative flex min-h-screen items-center px-6 pt-28 pb-20">
-      <motion.div style={{ y, opacity }} className="relative z-10 mx-auto w-full max-w-6xl">
-        {/* status pill */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="mb-8 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/[0.06] px-3.5 py-1.5 text-xs"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-          </span>
-          <span className="text-emerald-200/90">Available for internships, research & startup roles</span>
-        </motion.div>
-
-        {/* Hero title */}
-        <h1 className="font-display font-semibold tracking-[-0.03em] text-foreground text-[clamp(3.25rem,9vw,7.5rem)] leading-[0.95]">
-          <span className="block overflow-hidden">
-            {"Shivanand".split("").map((c, i) => (
-              <motion.span
-                key={i}
-                initial={{ y: "110%" }}
-                animate={{ y: "0%" }}
-                transition={{ delay: 0.2 + i * 0.03, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="inline-block"
-              >
-                {c}
-              </motion.span>
-            ))}
-          </span>
-          <span className="block overflow-hidden">
-            {"Ray.".split("").map((c, i) => (
-              <motion.span
-                key={i}
-                initial={{ y: "110%" }}
-                animate={{ y: "0%" }}
-                transition={{ delay: 0.5 + i * 0.04, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className={`inline-block ${c === "." ? "text-brand" : ""}`}
-              >
-                {c}
-              </motion.span>
-            ))}
-          </span>
-        </h1>
-
-        {/* Subline grid */}
-        <div className="mt-10 grid items-end gap-8 md:grid-cols-[1.4fr_1fr]">
+    <section ref={ref} id="home" className="relative min-h-screen flex flex-col">
+      {/* Hero content */}
+      <div className="relative flex flex-1 items-center px-6 pt-32 pb-8">
+        <motion.div style={{ y, opacity }} className="relative z-10 mx-auto w-full max-w-6xl">
+          {/* Availability pill */}
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0, duration: 0.7 }}
+            transition={{ delay: 0.15 }}
+            className="mb-8 inline-flex items-center gap-2.5 rounded-full px-4 py-2"
+            style={{
+              background: "rgba(34,197,94,0.08)",
+              border: "1px solid rgba(34,197,94,0.22)",
+            }}
           >
-            <div className="font-display text-2xl font-medium text-foreground sm:text-3xl">
-              <Typewriter />
-            </div>
-            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-muted-foreground sm:text-lg">
-              Building intelligent systems, healthcare platforms, fintech solutions,
-              and scalable software products — engineered with the rigor of a startup
-              and the polish of a product team.
-            </p>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+            </span>
+            <span className="text-xs font-medium" style={{ color: "rgba(110,231,183,0.95)" }}>
+              Available for internships, research & startup roles
+            </span>
+          </motion.div>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a
-                href="#projects"
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-foreground px-6 py-3.5 text-sm font-semibold text-background transition-transform hover:scale-[1.02]"
+          <div className="grid gap-12 lg:grid-cols-[1.2fr_0.8fr] items-center">
+            {/* Left: text */}
+            <div>
+              {/* Name */}
+              <h1
+                className="font-display font-bold tracking-[-0.03em] leading-[0.92]"
+                style={{ fontSize: "clamp(3.5rem, 10vw, 8rem)", color: "#F0F4FF" }}
               >
-                <span className="relative z-10">Explore Projects</span>
-                <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </a>
-              <a
-                href="#resume"
-                className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-6 py-3.5 text-sm font-semibold text-foreground transition-colors hover:bg-white/[0.07]"
-              >
-                <Download className="h-4 w-4" />
-                Download Resume
-              </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-1.5 px-2 py-3.5 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Contact <ArrowUpRight className="h-4 w-4" />
-              </a>
-            </div>
+                <span className="block overflow-hidden">
+                  {"Shivanand".split("").map((c, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ y: "110%", opacity: 0 }}
+                      animate={{ y: "0%", opacity: 1 }}
+                      transition={{ delay: 0.2 + i * 0.028, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                      className="inline-block"
+                    >
+                      {c}
+                    </motion.span>
+                  ))}
+                </span>
+                <span className="block overflow-hidden">
+                  {"Ray.".split("").map((c, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ y: "110%", opacity: 0 }}
+                      animate={{ y: "0%", opacity: 1 }}
+                      transition={{ delay: 0.55 + i * 0.04, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+                      className="inline-block"
+                      style={c === "." ? {
+                        background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                      } : {}}
+                    >
+                      {c}
+                    </motion.span>
+                  ))}
+                </span>
+              </h1>
 
-            <div className="mt-8 flex items-center gap-3">
-              {[
-                { icon: Github, href: "https://github.com/shivanandray215", label: "GitHub" },
-                { icon: Linkedin, href: "https://linkedin.com/in/shivanandray215", label: "LinkedIn" },
-                { icon: Mail, href: "mailto:shivanandray215@gmail.com", label: "Email" },
-              ].map(({ icon: Icon, href, label }) => (
+              {/* Role typewriter */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.05, duration: 0.6 }}
+                className="mt-6 font-display text-2xl font-medium sm:text-3xl"
+                style={{ color: "#F0F4FF" }}
+              >
+                <Typewriter />
+              </motion.div>
+
+              {/* Description */}
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2, duration: 0.6 }}
+                className="mt-5 max-w-xl text-[17px] leading-relaxed"
+                style={{ color: DIM }}
+              >
+                Building intelligent systems, healthcare platforms, fintech solutions,
+                and scalable software products — engineered with the rigor of a startup
+                and the polish of a product team.
+              </motion.p>
+
+              {/* CTAs */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.35, duration: 0.6 }}
+                className="mt-8 flex flex-wrap items-center gap-3"
+              >
                 <a
-                  key={label} href={href} target="_blank" rel="noreferrer" aria-label={label}
-                  className="group grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.03] text-muted-foreground transition-all hover:border-brand/40 hover:text-foreground"
+                  href="#projects"
+                  className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full px-6 py-3.5 text-sm font-semibold text-white transition-all hover:scale-[1.03]"
+                  style={{
+                    background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                    boxShadow: `0 8px 24px rgba(255,107,53,0.4)`,
+                  }}
                 >
-                  <Icon className="h-4 w-4" />
+                  <span className="relative z-10">Explore Projects</span>
+                  <ArrowRight className="relative z-10 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </a>
-              ))}
+                <a
+                  href="#resume"
+                  className="inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold transition-all hover:scale-[1.03]"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    color: "#F0F4FF",
+                  }}
+                >
+                  <Download className="h-4 w-4" /> Download Resume
+                </a>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center gap-1.5 px-2 py-3.5 text-sm font-semibold transition-colors hover:opacity-80"
+                  style={{ color: BRAND }}
+                >
+                  Contact <ArrowUpRight className="h-4 w-4" />
+                </a>
+              </motion.div>
+
+              {/* Social links */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.5, duration: 0.5 }}
+                className="mt-7 flex items-center gap-3"
+              >
+                {[
+                  { icon: Github, href: "https://github.com/shivanandray215", label: "GitHub" },
+                  { icon: Linkedin, href: "https://linkedin.com/in/shivanandray215", label: "LinkedIn" },
+                  { icon: Mail, href: "mailto:shivanandray215@gmail.com", label: "Email" },
+                ].map(({ icon: Icon, href, label }) => (
+                  <a
+                    key={label} href={href} target="_blank" rel="noreferrer" aria-label={label}
+                    className="group flex h-10 w-10 items-center justify-center rounded-xl transition-all hover:scale-110"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.09)",
+                      color: DIM,
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,107,53,0.12)";
+                      (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,107,53,0.3)";
+                      (e.currentTarget as HTMLElement).style.color = BRAND;
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)";
+                      (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.09)";
+                      (e.currentTarget as HTMLElement).style.color = DIM;
+                    }}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </a>
+                ))}
+                <span className="ml-2 font-mono text-[11px] uppercase tracking-widest" style={{ color: "rgba(136,146,164,0.5)" }}>
+                  Find me on
+                </span>
+              </motion.div>
             </div>
-          </motion.div>
 
-          {/* Stats column */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.7 }}
-            className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04]"
-          >
-            {HERO_STATS.map((s) => (
-              <div key={s.label} className="bg-[#0F172A]/80 px-5 py-6">
-                <div className="font-display text-3xl font-semibold text-foreground sm:text-4xl">{s.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-widest text-muted-foreground">{s.label}</div>
-              </div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.div>
+            {/* Right: Stats grid */}
+            <motion.div
+              initial={{ opacity: 0, x: 40, scale: 0.95 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              transition={{ delay: 1.15, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              className="grid grid-cols-2 gap-3"
+            >
+              {HERO_STATS.map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.3 + i * 0.08, duration: 0.6 }}
+                  className="group relative overflow-hidden rounded-2xl p-6 transition-all hover:scale-[1.02]"
+                  style={{
+                    background: "linear-gradient(145deg, rgba(15,21,40,0.95) 0%, rgba(10,14,28,0.95) 100%)",
+                    border: "1px solid rgba(255,255,255,0.07)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+                  }}
+                >
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-100"
+                    style={{ background: `linear-gradient(135deg, rgba(255,107,53,0.05), rgba(168,85,247,0.05))` }}
+                  />
+                  <s.icon className="mb-3 h-5 w-5" style={{ color: i % 2 === 0 ? BRAND : VIOLET }} />
+                  <div className="font-display text-3xl font-bold sm:text-4xl"
+                    style={{
+                      background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    {s.value}
+                  </div>
+                  <div className="mt-1 text-xs uppercase tracking-widest" style={{ color: DIM }}>{s.label}</div>
+                </motion.div>
+              ))}
 
-      {/* ambient glow */}
-      <div className="pointer-events-none absolute left-1/4 top-1/3 h-96 w-96 -translate-x-1/2 rounded-full bg-brand/15 blur-[120px]" />
-      <div className="pointer-events-none absolute right-0 bottom-10 h-80 w-80 rounded-full bg-brand-2/10 blur-[120px]" />
+              {/* Profile card at bottom */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.65, duration: 0.6 }}
+                className="col-span-2 overflow-hidden rounded-2xl p-4"
+                style={{
+                  background: `linear-gradient(135deg, rgba(255,107,53,0.08), rgba(168,85,247,0.08))`,
+                  border: `1px solid rgba(255,107,53,0.2)`,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl font-display text-sm font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`, boxShadow: `0 4px 12px rgba(255,107,53,0.4)` }}
+                  >
+                    SR
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold" style={{ color: "#F0F4FF" }}>Shivanand Ray</div>
+                    <div className="text-xs" style={{ color: DIM }}>B.Tech CSE (AI & ML) · MAIT</div>
+                  </div>
+                  <div className="ml-auto flex items-center gap-1.5 text-[10px]"
+                    style={{ color: "#6ee7b7" }}>
+                    <span className="relative flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    </span>
+                    Open to work
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Ticker */}
+      <TickerBanner />
     </section>
   );
 }
 
-/* ============================================================
-   ABOUT
-   ============================================================ */
+/* ─── ABOUT ───────────────────────────────────────────────────── */
 
 function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -224,7 +451,7 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (!inView) return;
-    const dur = 1200;
+    const dur = 1400;
     const start = performance.now();
     let raf = 0;
     const step = (t: number) => {
@@ -239,112 +466,221 @@ function Counter({ to, suffix = "" }: { to: number; suffix?: string }) {
   return <span ref={ref}>{display}{suffix}</span>;
 }
 
+const ABOUT_TRAITS = [
+  { icon: Brain, label: "AI First Thinking" },
+  { icon: Rocket, label: "Startup Mindset" },
+  { icon: Globe, label: "Global Impact" },
+  { icon: Coffee, label: "Detail Obsessed" },
+];
+
 export function AboutSection() {
   return (
     <section id="about" className="relative px-6 py-32">
+      {/* Subtle divider */}
+      <div className="mx-auto mb-24 max-w-6xl h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(255,107,53,0.3), rgba(168,85,247,0.3), transparent)" }} />
+
       <div className="mx-auto max-w-6xl">
         <SectionHeader
-          kicker="About"
-          title={<>Engineer first. <span className="text-muted-foreground">Builder always.</span></>}
-          sub="I'm a third-year B.Tech CSE (AI & ML) student at MAIT, GGSIPU. I build at the intersection of artificial intelligence, healthcare and fintech — turning research-grade ideas into shipped, production-quality software."
+          kicker="About Me"
+          title={<>Engineer first. <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>Builder always.</span></>}
+          sub="Third-year B.Tech CSE (AI & ML) student at MAIT, GGSIPU. I build at the intersection of AI, healthcare and fintech — turning research-grade ideas into shipped, production-quality software."
         />
 
         <div className="grid gap-6 lg:grid-cols-12">
-          {/* Identity card */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="relative overflow-hidden rounded-3xl surface-card p-8 lg:col-span-7"
-          >
-            <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+          {/* Main identity card */}
+          <PremiumCard className="lg:col-span-7 p-8 sm:p-10" delay={0}>
+            {/* Decorative gradient blob */}
+            <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-20"
+              style={{ background: `radial-gradient(circle, ${BRAND}, transparent 70%)`, filter: "blur(48px)" }} />
+
             <div className="relative">
+              {/* Profile header */}
               <div className="flex items-center gap-4">
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-2 font-display text-2xl font-semibold text-white">
+                <div
+                  className="flex h-16 w-16 items-center justify-center rounded-2xl font-display text-2xl font-bold text-white shrink-0"
+                  style={{
+                    background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                    boxShadow: `0 0 30px rgba(255,107,53,0.35)`,
+                  }}
+                >
                   SR
                 </div>
                 <div>
-                  <div className="font-display text-xl font-semibold">Shivanand Ray</div>
-                  <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-                    <MapPin className="h-3.5 w-3.5" /> New Delhi, India
+                  <div className="font-display text-xl font-semibold" style={{ color: "#F0F4FF" }}>Shivanand Ray</div>
+                  <div className="mt-1 flex items-center gap-1.5 text-sm" style={{ color: DIM }}>
+                    <MapPin className="h-3.5 w-3.5" style={{ color: BRAND }} /> New Delhi, India
                   </div>
+                </div>
+                <div className="ml-auto">
+                  <Tag variant="brand">Available</Tag>
                 </div>
               </div>
 
-              <p className="mt-6 text-[17px] leading-relaxed text-muted-foreground">
+              <p className="mt-6 text-[16px] leading-relaxed" style={{ color: DIM }}>
                 Strong foundations in Data Structures, Algorithms, Full Stack Development
                 and Intelligent Systems. I think in systems, ship like a startup, and
                 obsess over the details that turn good products into memorable ones.
               </p>
 
+              {/* Education + CGPA cards */}
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-4">
-                  <GraduationCap className="mt-0.5 h-4 w-4 text-brand-2 shrink-0" />
-                  <div className="text-sm">
-                    <div className="font-medium text-foreground">B.Tech CSE (AI & ML)</div>
-                    <div className="text-xs text-muted-foreground">MAIT • GGSIPU • 2024–2028</div>
+                {[
+                  {
+                    icon: GraduationCap,
+                    title: "B.Tech CSE (AI & ML)",
+                    sub: "MAIT • GGSIPU • 2024–2028",
+                    color: VIOLET,
+                  },
+                  {
+                    icon: Award,
+                    title: "CGPA 8.1",
+                    sub: "3rd year, ongoing",
+                    color: BRAND,
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.title}
+                    className="flex items-start gap-3 rounded-xl p-4 transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.025)",
+                      border: "1px solid rgba(255,255,255,0.07)",
+                    }}
+                  >
+                    <div
+                      className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                      style={{ background: `${item.color}18`, border: `1px solid ${item.color}30` }}
+                    >
+                      <item.icon className="h-4 w-4" style={{ color: item.color }} />
+                    </div>
+                    <div className="text-sm">
+                      <div className="font-medium" style={{ color: "#F0F4FF" }}>{item.title}</div>
+                      <div className="text-xs mt-0.5" style={{ color: DIM }}>{item.sub}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start gap-3 rounded-xl border border-white/8 bg-white/[0.02] p-4">
-                  <Award className="mt-0.5 h-4 w-4 text-brand shrink-0" />
-                  <div className="text-sm">
-                    <div className="font-medium text-foreground">CGPA 8.1</div>
-                    <div className="text-xs text-muted-foreground">3rd year, ongoing</div>
-                  </div>
-                </div>
+                ))}
               </div>
 
+              {/* Traits */}
+              <div className="mt-6 grid grid-cols-4 gap-3">
+                {ABOUT_TRAITS.map((t) => (
+                  <div key={t.label} className="flex flex-col items-center gap-2 rounded-xl py-4"
+                    style={{
+                      background: "rgba(255,255,255,0.02)",
+                      border: "1px solid rgba(255,255,255,0.06)",
+                    }}>
+                    <t.icon className="h-4 w-4" style={{ color: BRAND }} />
+                    <span className="text-center font-mono text-[9px] uppercase tracking-wider" style={{ color: DIM }}>{t.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Focus tags */}
               <div className="mt-6">
-                <div className="mb-3 font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Focus areas</div>
+                <div className="mb-3 font-mono text-[11px] uppercase tracking-widest" style={{ color: "rgba(136,146,164,0.6)" }}>
+                  Focus Areas
+                </div>
                 <div className="flex flex-wrap gap-2">
-                  {["Artificial Intelligence","Software Engineering","Healthcare Tech","FinTech","Research","Startups"].map(t => (
-                    <span key={t} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-muted-foreground">{t}</span>
+                  {["Artificial Intelligence", "Software Engineering", "Healthcare Tech", "FinTech", "Research", "Startups"].map(t => (
+                    <Tag key={t}>{t}</Tag>
                   ))}
                 </div>
               </div>
             </div>
-          </motion.div>
+          </PremiumCard>
 
-          {/* Stat column */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="grid grid-cols-2 gap-4 lg:col-span-5 lg:grid-cols-1"
-          >
+          {/* Stats column */}
+          <div className="flex flex-col gap-4 lg:col-span-5">
             {[
-              { value: 8.1, suffix: "", label: "Current CGPA", icon: GraduationCap },
-              { value: 5, suffix: "+", label: "Shipped projects", icon: Layers },
-              { value: 5, suffix: "+", label: "Hackathons & ideathons", icon: Trophy },
-            ].map((s) => (
-              <div key={s.label} className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-                <s.icon className="absolute right-5 top-5 h-5 w-5 text-muted-foreground/60" />
-                <div className="font-display text-4xl font-semibold text-gradient-brand sm:text-5xl">
-                  <Counter to={s.value} suffix={s.suffix} />
+              { value: 8.1, suffix: "", label: "Current CGPA", icon: Star, color: GOLD },
+              { value: 5, suffix: "+", label: "Shipped Projects", icon: Layers, color: BRAND },
+              { value: 5, suffix: "+", label: "Hackathons & Ideathons", icon: Trophy, color: VIOLET },
+            ].map((s, i) => (
+              <PremiumCard key={s.label} className="p-6" delay={i * 0.08}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div
+                      className="font-display text-5xl font-bold sm:text-6xl"
+                      style={{
+                        background: `linear-gradient(135deg, ${s.color}, ${i % 2 === 0 ? VIOLET : BRAND})`,
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                      }}
+                    >
+                      <Counter to={s.value} suffix={s.suffix} />
+                    </div>
+                    <div className="mt-2 text-sm" style={{ color: DIM }}>{s.label}</div>
+                  </div>
+                  <div
+                    className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                    style={{ background: `${s.color}12`, border: `1px solid ${s.color}25` }}
+                  >
+                    <s.icon className="h-6 w-6" style={{ color: s.color }} />
+                  </div>
                 </div>
-                <div className="mt-2 text-sm text-muted-foreground">{s.label}</div>
-              </div>
+                {/* Mini bar */}
+                <div className="mt-4 h-1 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${s.color}, ${i % 2 === 0 ? VIOLET : BRAND})` }}
+                    initial={{ width: "0%" }}
+                    whileInView={{ width: "75%" }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.2, delay: 0.3 + i * 0.1, ease: "easeOut" }}
+                  />
+                </div>
+              </PremiumCard>
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-/* ============================================================
-   SKILLS
-   ============================================================ */
+/* ─── SKILLS ──────────────────────────────────────────────────── */
 
 const SKILL_GROUPS = [
-  { icon: Code2, title: "Languages", items: ["C++","Java","Python","JavaScript","TypeScript","SQL"] },
-  { icon: Brain, title: "AI & Machine Learning", items: ["NumPy","Pandas","Scikit-Learn","Data Analysis","EDA","Model Evaluation"] },
-  { icon: Rocket, title: "Web Development", items: ["React","Node.js","Express","Flask","FastAPI","Django","REST APIs"] },
-  { icon: Database, title: "Databases", items: ["PostgreSQL","MongoDB","MySQL","SQLite"] },
-  { icon: Wrench, title: "Tools & Workflow", items: ["Git","GitHub","VS Code","Postman","Linux"] },
-  { icon: Cpu, title: "Core Foundations", items: ["DSA","OOP","Operating Systems","DBMS","Networks"] },
+  {
+    icon: Code2,
+    title: "Languages",
+    color: BRAND,
+    items: ["C++", "Java", "Python", "JavaScript", "TypeScript", "SQL"],
+  },
+  {
+    icon: Brain,
+    title: "AI & Machine Learning",
+    color: VIOLET,
+    items: ["NumPy", "Pandas", "Scikit-Learn", "Data Analysis", "EDA", "Model Evaluation"],
+  },
+  {
+    icon: Globe,
+    title: "Web Development",
+    color: GOLD,
+    items: ["React", "Node.js", "Express", "Flask", "FastAPI", "Django", "REST APIs"],
+  },
+  {
+    icon: Database,
+    title: "Databases",
+    color: BRAND,
+    items: ["PostgreSQL", "MongoDB", "MySQL", "SQLite"],
+  },
+  {
+    icon: Wrench,
+    title: "Tools & Workflow",
+    color: VIOLET,
+    items: ["Git", "GitHub", "VS Code", "Postman", "Linux"],
+  },
+  {
+    icon: Cpu,
+    title: "Core Foundations",
+    color: GOLD,
+    items: ["DSA", "OOP", "Operating Systems", "DBMS", "Networks"],
+  },
 ];
 
 export function SkillsSection() {
@@ -353,35 +689,57 @@ export function SkillsSection() {
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           kicker="Toolkit"
-          title={<>The stack behind <span className="text-gradient-brand">the shipping</span>.</>}
-          sub="An evolving toolkit — chosen by what builds the best product, not by what's trending this week."
+          title={<>The stack behind <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>the shipping</span>.</>}
+          sub="An evolving toolkit — chosen by what builds the best product, not by what's trending."
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {SKILL_GROUPS.map((g, i) => (
-            <motion.div
-              key={g.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-60px" }}
-              transition={{ duration: 0.55, delay: i * 0.05, ease: [0.22, 1, 0.36, 1] }}
-              className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-6 transition-all hover:border-brand/30 hover:bg-white/[0.04]"
-            >
-              <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-brand/40 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+            <PremiumCard key={g.title} className="p-6" delay={i * 0.06}>
+              {/* Icon + title */}
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-brand-2 transition-colors group-hover:text-brand">
-                  <g.icon className="h-4.5 w-4.5" />
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-xl transition-all"
+                  style={{
+                    background: `${g.color}14`,
+                    border: `1px solid ${g.color}28`,
+                  }}
+                >
+                  <g.icon className="h-5 w-5" style={{ color: g.color }} />
                 </div>
-                <h3 className="font-display text-lg font-semibold">{g.title}</h3>
+                <h3 className="font-display text-base font-semibold" style={{ color: "#F0F4FF" }}>{g.title}</h3>
               </div>
-              <div className="mt-5 flex flex-wrap gap-1.5">
+
+              {/* Divider */}
+              <div className="my-4 h-px" style={{ background: `linear-gradient(90deg, ${g.color}40, transparent)` }} />
+
+              {/* Tech chips */}
+              <div className="flex flex-wrap gap-1.5">
                 {g.items.map((it) => (
-                  <span key={it} className="rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-1 font-mono text-[11px] text-muted-foreground transition-colors hover:border-brand/30 hover:text-foreground">
+                  <motion.span
+                    key={it}
+                    className="cursor-default rounded-lg px-2.5 py-1 font-mono text-[11px] transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.09)",
+                      color: DIM,
+                    }}
+                    whileHover={{
+                      background: `${g.color}12`,
+                      borderColor: `${g.color}35`,
+                      color: g.color,
+                      scale: 1.05,
+                    }}
+                  >
                     {it}
-                  </span>
+                  </motion.span>
                 ))}
               </div>
-            </motion.div>
+            </PremiumCard>
           ))}
         </div>
       </div>
@@ -389,9 +747,7 @@ export function SkillsSection() {
   );
 }
 
-/* ============================================================
-   PROJECTS — flagship + grid
-   ============================================================ */
+/* ─── PROJECTS ────────────────────────────────────────────────── */
 
 const SECONDARY_PROJECTS = [
   {
@@ -399,32 +755,36 @@ const SECONDARY_PROJECTS = [
     tag: "Dead Stock Marketplace",
     description: "Full-stack marketplace connecting buyers and sellers of unsold inventory with dynamic pricing and analytics dashboards.",
     features: ["Dynamic pricing", "Buyer & seller dashboards", "Admin analytics"],
-    tech: ["React","TypeScript","Node.js","Express","PostgreSQL"],
+    tech: ["React", "TypeScript", "Node.js", "Express", "PostgreSQL"],
     icon: Layers,
+    color: BRAND,
   },
   {
     title: "CrediFlow",
     tag: "AI Credit · Web3 Identity",
     description: "AI-powered credit scoring and blockchain-based digital identity platform with consent-based data sharing.",
     features: ["AI credit analysis", "On-chain identity", "Consent-based sharing"],
-    tech: ["Python","ML","Blockchain","Web3"],
+    tech: ["Python", "ML", "Blockchain", "Web3"],
     icon: Shield,
+    color: VIOLET,
   },
   {
     title: "TravelSafeAI",
     tag: "Tourist Safety System",
     description: "Smart tourist safety monitoring with anomaly detection, geo-fencing and instant emergency alert routing.",
     features: ["Anomaly detection", "Geo-fencing", "Emergency alerts"],
-    tech: ["AI/ML","Blockchain","Python"],
+    tech: ["AI/ML", "Blockchain", "Python"],
     icon: Activity,
+    color: GOLD,
   },
   {
     title: "MediVenture",
     tag: "Healthcare Supply Chain",
     description: "Healthcare inventory and supply-chain platform with demand forecasting and multi-branch operations.",
     features: ["Inventory monitoring", "Demand forecasting", "Multi-branch"],
-    tech: ["Python","FastAPI","Flask","SQL"],
+    tech: ["Python", "FastAPI", "Flask", "SQL"],
     icon: Database,
+    color: BRAND,
   },
 ];
 
@@ -433,11 +793,12 @@ function FlagshipProject() {
   const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
   function onMove(e: React.MouseEvent) {
-    const el = ref.current; if (!el) return;
+    const el = ref.current;
+    if (!el) return;
     const r = el.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
-    setTilt({ rx: -py * 3, ry: px * 4 });
+    setTilt({ rx: -py * 4, ry: px * 5 });
   }
 
   return (
@@ -445,126 +806,212 @@ function FlagshipProject() {
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={() => setTilt({ rx: 0, ry: 0 })}
-      initial={{ opacity: 0, y: 40 }}
+      initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      style={{ transform: `perspective(1400px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)` }}
-      className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-gradient-to-br from-[#0F172A] to-[#0B1220] p-1"
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      style={{
+        transform: `perspective(1400px) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+        transition: "transform 0.1s ease",
+      }}
+      className="group relative overflow-hidden rounded-3xl"
     >
-      {/* glow border */}
-      <div className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-        style={{ background: "linear-gradient(120deg, transparent, rgba(59,130,246,0.18), transparent 60%)" }} />
+      {/* Gradient border */}
+      <div
+        className="absolute inset-0 rounded-3xl"
+        style={{
+          padding: "1px",
+          background: `linear-gradient(135deg, rgba(255,107,53,0.4), rgba(168,85,247,0.4), transparent 60%)`,
+          WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
+        }}
+      />
 
-      <div className="relative grid gap-0 rounded-[24px] lg:grid-cols-[1.1fr_1fr]">
-        {/* LEFT — Content */}
-        <div className="p-8 sm:p-10 lg:p-12">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-brand/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-brand">Flagship</span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">AI Healthcare Ecosystem</span>
-          </div>
-          <h3 className="mt-5 font-display text-5xl font-semibold tracking-tight text-foreground sm:text-6xl">
-            MEDLINK<span className="text-brand">-</span>AI
-          </h3>
-          <p className="mt-5 max-w-lg text-[17px] leading-relaxed text-muted-foreground">
-            An AI-powered healthcare ecosystem unifying digital health IDs, QR-based
-            record access, AI-generated medical summaries and hospital workflow
-            management — designed from the ground up for Indian clinics and patients.
-          </p>
+      <div
+        className="relative rounded-3xl overflow-hidden"
+        style={{ background: "linear-gradient(135deg, rgba(12,16,32,0.98) 0%, rgba(8,11,22,0.98) 100%)" }}
+      >
+        {/* Hover glow */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+          style={{ background: "linear-gradient(120deg, transparent, rgba(255,107,53,0.08), transparent 60%)" }}
+        />
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
-            {[
-              { icon: Stethoscope, title: "Digital Health ID", note: "Portable patient identity" },
-              { icon: Zap, title: "AI Medical Summaries", note: "LLM-assisted insights" },
-              { icon: Shield, title: "QR Record Access", note: "Secure & instant" },
-              { icon: Activity, title: "Hospital Workflow", note: "End-to-end operations" },
-            ].map((f) => (
-              <div key={f.title} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3.5">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand/10 text-brand">
-                  <f.icon className="h-4 w-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-foreground">{f.title}</div>
-                  <div className="text-xs text-muted-foreground">{f.note}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid lg:grid-cols-[1.1fr_1fr]">
+          {/* LEFT — Content */}
+          <div className="relative p-8 sm:p-10 lg:p-12">
+            <div className="flex flex-wrap items-center gap-2">
+              <Tag variant="brand">Flagship Project</Tag>
+              <span className="font-mono text-[10px] uppercase tracking-widest" style={{ color: DIM }}>AI Healthcare Ecosystem</span>
+            </div>
 
-          <div className="mt-8 flex flex-wrap gap-1.5">
-            {["React","TypeScript","Node.js","Express","AI/ML","REST APIs"].map((t) => (
-              <span key={t} className="rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-1 font-mono text-[11px] text-muted-foreground">{t}</span>
-            ))}
-          </div>
+            <h3 className="mt-5 font-display text-5xl font-bold tracking-tight sm:text-6xl" style={{ color: "#F0F4FF" }}>
+              MEDLINK
+              <span style={{
+                background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}>-AI</span>
+            </h3>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="https://github.com/shivanandray215" target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:scale-[1.02]">
-              View case study <ArrowUpRight className="h-4 w-4" />
-            </a>
-            <a href="https://github.com/shivanandray215" target="_blank" rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/[0.07]">
-              <Github className="h-4 w-4" /> Source
-            </a>
-          </div>
-        </div>
+            <p className="mt-5 max-w-lg text-[16px] leading-relaxed" style={{ color: DIM }}>
+              An AI-powered healthcare ecosystem unifying digital health IDs, QR-based
+              record access, AI-generated medical summaries and hospital workflow
+              management — designed from the ground up for Indian clinics and patients.
+            </p>
 
-        {/* RIGHT — Visual */}
-        <div className="relative min-h-[360px] overflow-hidden rounded-[20px] bg-gradient-to-br from-[#0B1426] via-[#0A1733] to-[#070E1F] lg:rounded-l-none">
-          {/* grid */}
-          <div className="absolute inset-0 opacity-[0.18]" style={{
-            backgroundImage:
-              "linear-gradient(rgba(59,130,246,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.4) 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-            maskImage: "radial-gradient(ellipse at center, black 30%, transparent 75%)",
-          }} />
-          {/* glow */}
-          <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/25 blur-3xl" />
-
-          {/* device mock */}
-          <div className="relative z-10 flex h-full items-center justify-center p-8">
-            <div className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0F172A]/90 p-5 shadow-2xl backdrop-blur-xl">
-              <div className="flex items-center gap-1.5 border-b border-white/10 pb-3">
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                <span className="ml-auto font-mono text-[10px] text-muted-foreground">medlink.ai/patient</span>
-              </div>
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand to-brand-2">
-                    <Stethoscope className="h-4 w-4 text-white" />
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              {[
+                { icon: Stethoscope, title: "Digital Health ID", note: "Portable patient identity", color: BRAND },
+                { icon: Zap, title: "AI Medical Summaries", note: "LLM-assisted insights", color: VIOLET },
+                { icon: Shield, title: "QR Record Access", note: "Secure & instant", color: GOLD },
+                { icon: Activity, title: "Hospital Workflow", note: "End-to-end operations", color: BRAND },
+              ].map((f) => (
+                <div
+                  key={f.title}
+                  className="flex items-start gap-3 rounded-xl p-3.5 transition-all hover:scale-[1.02]"
+                  style={{
+                    background: `${f.color}08`,
+                    border: `1px solid ${f.color}20`,
+                  }}
+                >
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+                    style={{ background: `${f.color}15` }}
+                  >
+                    <f.icon className="h-4 w-4" style={{ color: f.color }} />
                   </div>
                   <div>
-                    <div className="text-xs text-muted-foreground">Patient · ID #MA-9421</div>
-                    <div className="text-sm font-semibold">Aarav Mehta</div>
+                    <div className="text-sm font-medium" style={{ color: "#F0F4FF" }}>{f.title}</div>
+                    <div className="text-xs" style={{ color: DIM }}>{f.note}</div>
                   </div>
-                  <div className="ml-auto rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-medium text-emerald-300">Stable</div>
                 </div>
-                <div className="space-y-2">
-                  {[
-                    { l: "Heart rate", v: "72 bpm", w: "60%" },
-                    { l: "BP", v: "118/76", w: "75%" },
-                    { l: "SpO₂", v: "98%", w: "90%" },
-                  ].map((m, i) => (
-                    <div key={i} className="rounded-lg border border-white/8 bg-white/[0.02] p-2.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-muted-foreground">{m.l}</span>
-                        <span className="font-mono text-foreground">{m.v}</span>
-                      </div>
-                      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/5">
-                        <div className="h-full bg-gradient-to-r from-brand to-brand-2" style={{ width: m.w }} />
-                      </div>
+              ))}
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-1.5">
+              {["React", "TypeScript", "Node.js", "Express", "AI/ML", "REST APIs"].map((t) => (
+                <Tag key={t}>{t}</Tag>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a
+                href="https://github.com/shivanandray215"
+                target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white transition-all hover:scale-[1.03] hover:shadow-lg"
+                style={{
+                  background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                  boxShadow: `0 6px 20px rgba(255,107,53,0.35)`,
+                }}
+              >
+                View Case Study <ArrowUpRight className="h-4 w-4" />
+              </a>
+              <a
+                href="https://github.com/shivanandray215"
+                target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all hover:scale-[1.03]"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#F0F4FF",
+                }}
+              >
+                <Github className="h-4 w-4" /> Source
+              </a>
+            </div>
+          </div>
+
+          {/* RIGHT — Visual mock */}
+          <div
+            className="relative min-h-[360px] overflow-hidden lg:rounded-l-none"
+            style={{ background: "linear-gradient(135deg, rgba(10,16,38,0.95), rgba(7,11,24,0.95))" }}
+          >
+            {/* Grid bg */}
+            <div
+              className="absolute inset-0 opacity-[0.12]"
+              style={{
+                backgroundImage: `linear-gradient(rgba(255,107,53,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,107,53,0.5) 1px, transparent 1px)`,
+                backgroundSize: "28px 28px",
+                maskImage: "radial-gradient(ellipse at center, black 20%, transparent 80%)",
+              }}
+            />
+            {/* Central glow */}
+            <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full opacity-30"
+              style={{ background: `radial-gradient(circle, ${BRAND} 0%, ${VIOLET} 50%, transparent 70%)`, filter: "blur(50px)" }} />
+
+            {/* Mock device */}
+            <div className="relative z-10 flex h-full items-center justify-center p-8">
+              <div
+                className="w-full max-w-[280px] overflow-hidden rounded-2xl p-5 shadow-2xl"
+                style={{
+                  background: "rgba(10,14,28,0.95)",
+                  border: "1px solid rgba(255,107,53,0.2)",
+                  backdropFilter: "blur(20px)",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,107,53,0.1)",
+                }}
+              >
+                {/* Browser bar */}
+                <div className="flex items-center gap-1.5 border-b pb-3" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "#FF5F57" }} />
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "#FEBC2E" }} />
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ background: "#28C840" }} />
+                  <span className="ml-auto font-mono text-[10px]" style={{ color: DIM }}>medlink.ai/patient</span>
+                </div>
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="flex h-9 w-9 items-center justify-center rounded-full"
+                      style={{ background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})` }}
+                    >
+                      <Stethoscope className="h-4 w-4 text-white" />
                     </div>
-                  ))}
-                </div>
-                <div className="rounded-lg border border-brand/20 bg-brand/[0.06] p-3">
-                  <div className="flex items-center gap-1.5 text-[11px] font-medium text-brand">
-                    <Zap className="h-3 w-3" /> AI Summary
+                    <div>
+                      <div className="text-xs" style={{ color: DIM }}>Patient · ID #MA-9421</div>
+                      <div className="text-sm font-semibold" style={{ color: "#F0F4FF" }}>Aarav Mehta</div>
+                    </div>
+                    <div
+                      className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      style={{ background: "rgba(34,197,94,0.15)", color: "#86efac" }}
+                    >
+                      Stable
+                    </div>
                   </div>
-                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
-                    Vitals trending normal. Recommend follow-up consultation in 14 days.
-                  </p>
+
+                  <div className="space-y-2">
+                    {[
+                      { l: "Heart Rate", v: "72 bpm", w: "60%", c: BRAND },
+                      { l: "BP", v: "118/76", w: "75%", c: VIOLET },
+                      { l: "SpO₂", v: "98%", w: "90%", c: GOLD },
+                    ].map((m) => (
+                      <div
+                        key={m.l}
+                        className="rounded-lg p-2.5"
+                        style={{ background: "rgba(255,255,255,0.025)", border: "1px solid rgba(255,255,255,0.06)" }}
+                      >
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span style={{ color: DIM }}>{m.l}</span>
+                          <span className="font-mono" style={{ color: "#F0F4FF" }}>{m.v}</span>
+                        </div>
+                        <div className="mt-1.5 h-1 overflow-hidden rounded-full" style={{ background: "rgba(255,255,255,0.05)" }}>
+                          <div className="h-full rounded-full" style={{ width: m.w, background: `linear-gradient(90deg, ${m.c}, ${VIOLET})` }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div
+                    className="rounded-lg p-3"
+                    style={{ background: `${BRAND}10`, border: `1px solid ${BRAND}25` }}
+                  >
+                    <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: BRAND }}>
+                      <Zap className="h-3 w-3" /> AI Summary
+                    </div>
+                    <p className="mt-1 text-[11px] leading-relaxed" style={{ color: DIM }}>
+                      Vitals trending normal. Recommend follow-up in 14 days.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -577,51 +1024,49 @@ function FlagshipProject() {
 
 function SecondaryCard({ p, i }: { p: typeof SECONDARY_PROJECTS[number]; i: number }) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.02] p-7 transition-all hover:border-brand/30 hover:bg-white/[0.04]"
-    >
-      <div className="pointer-events-none absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-brand/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-
+    <PremiumCard className="flex flex-col p-7" delay={i * 0.07}>
       <div className="flex items-start justify-between gap-4">
-        <div className="grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-brand-2">
-          <p.icon className="h-5 w-5" />
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-xl"
+          style={{ background: `${p.color}14`, border: `1px solid ${p.color}28` }}
+        >
+          <p.icon className="h-5 w-5" style={{ color: p.color }} />
         </div>
-        <span className="rounded-full border border-white/10 bg-white/[0.02] px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-          {p.tag}
-        </span>
+        <Tag>{p.tag}</Tag>
       </div>
 
-      <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight">{p.title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{p.description}</p>
+      <h3 className="mt-5 font-display text-2xl font-bold" style={{ color: "#F0F4FF" }}>{p.title}</h3>
+      <p className="mt-2 text-sm leading-relaxed" style={{ color: DIM }}>{p.description}</p>
 
       <ul className="mt-5 space-y-1.5">
         {p.features.map((f) => (
-          <li key={f} className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="h-1 w-1 rounded-full bg-brand" /> {f}
+          <li key={f} className="flex items-center gap-2 text-xs" style={{ color: DIM }}>
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: p.color }} /> {f}
           </li>
         ))}
       </ul>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
         {p.tech.map((t) => (
-          <span key={t} className="rounded-md border border-white/10 bg-white/[0.02] px-2 py-0.5 font-mono text-[10px] text-muted-foreground">{t}</span>
+          <Tag key={t}>{t}</Tag>
         ))}
       </div>
 
-      <div className="mt-6 flex items-center gap-2 border-t border-white/5 pt-5">
-        <a href="https://github.com/shivanandray215" target="_blank" rel="noreferrer"
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground">
+      <div className="mt-auto flex items-center gap-2 border-t pt-5" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <a
+          href="https://github.com/shivanandray215"
+          target="_blank" rel="noreferrer"
+          className="inline-flex items-center gap-1.5 text-xs font-medium transition-colors hover:opacity-80"
+          style={{ color: DIM }}
+        >
           <Github className="h-3.5 w-3.5" /> Source
         </a>
-        <a href="#" className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand transition-transform group-hover:translate-x-0.5">
+        <a href="#" className="ml-auto inline-flex items-center gap-1 text-xs font-semibold transition-all group-hover:translate-x-0.5"
+          style={{ color: p.color }}>
           Read more <ArrowUpRight className="h-3.5 w-3.5" />
         </a>
       </div>
-    </motion.article>
+    </PremiumCard>
   );
 }
 
@@ -631,7 +1076,11 @@ export function ProjectsSection() {
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           kicker="Selected Work"
-          title={<>Products that <span className="text-gradient-brand">ship</span>.</>}
+          title={<>Products that <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>ship</span>.</>}
           sub="A focused selection across AI, healthcare, fintech and full-stack systems — built end-to-end, from problem to product."
         />
 
@@ -645,17 +1094,68 @@ export function ProjectsSection() {
   );
 }
 
-/* ============================================================
-   ACHIEVEMENTS
-   ============================================================ */
+/* ─── ACHIEVEMENTS ────────────────────────────────────────────── */
 
 const ACHIEVEMENTS = [
-  { title: "Winner — Pitch Your Idea 3.0", note: "Top startup pitch among national entries.", year: "2024", icon: Trophy, level: "Winner" },
-  { title: "Finalist — XCELERATE 3.0 Ideathon", note: "National-level finalist for an AI product idea.", year: "2024", icon: Award, level: "Finalist" },
-  { title: "Finalist — CodeVeda 2.0 Hackathon", note: "Selected among the top teams nationally.", year: "2024", icon: Award, level: "Finalist" },
-  { title: "5+ National Hackathons", note: "Consistent participation, shipping demos under 48 hours.", year: "2023–2025", icon: Rocket, level: "Participant" },
-  { title: "Cybersecurity CTF Competitions", note: "Capture-the-flag participant across multiple events.", year: "2024", icon: Shield, level: "Participant" },
+  {
+    title: "Winner — Pitch Your Idea 3.0",
+    note: "Top startup pitch among national entries.",
+    year: "2024",
+    icon: Trophy,
+    level: "Winner",
+    color: GOLD,
+  },
+  {
+    title: "Finalist — XCELERATE 3.0 Ideathon",
+    note: "National-level finalist for an AI product idea.",
+    year: "2024",
+    icon: Award,
+    level: "Finalist",
+    color: BRAND,
+  },
+  {
+    title: "Finalist — CodeVeda 2.0 Hackathon",
+    note: "Selected among top teams nationally.",
+    year: "2024",
+    icon: Award,
+    level: "Finalist",
+    color: BRAND,
+  },
+  {
+    title: "5+ National Hackathons",
+    note: "Consistent participation, shipping demos under 48 hours.",
+    year: "2023–2025",
+    icon: Rocket,
+    level: "Participant",
+    color: VIOLET,
+  },
+  {
+    title: "Cybersecurity CTF Competitions",
+    note: "Capture-the-flag participant across multiple events.",
+    year: "2024",
+    icon: Shield,
+    level: "Participant",
+    color: VIOLET,
+  },
 ];
+
+const LEVEL_STYLES: Record<string, { bg: string; border: string; color: string }> = {
+  Winner: {
+    bg: "rgba(245,158,11,0.12)",
+    border: "rgba(245,158,11,0.3)",
+    color: GOLD,
+  },
+  Finalist: {
+    bg: "rgba(255,107,53,0.12)",
+    border: "rgba(255,107,53,0.3)",
+    color: BRAND,
+  },
+  Participant: {
+    bg: "rgba(168,85,247,0.10)",
+    border: "rgba(168,85,247,0.25)",
+    color: VIOLET,
+  },
+};
 
 export function AchievementsSection() {
   return (
@@ -663,43 +1163,69 @@ export function AchievementsSection() {
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           kicker="Recognition"
-          title={<>Validated by <span className="text-gradient-brand">competition</span>.</>}
+          title={<>Validated by <span style={{
+            background: `linear-gradient(135deg, ${GOLD}, ${BRAND})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>competition</span>.</>}
           sub="Selected results from hackathons, ideathons and national competitions."
         />
 
         <div className="relative">
-          <div className="absolute left-[15px] top-2 bottom-2 w-px bg-gradient-to-b from-transparent via-white/15 to-transparent" />
-          <div className="space-y-4">
-            {ACHIEVEMENTS.map((a, i) => (
-              <motion.div
-                key={a.title}
-                initial={{ opacity: 0, x: -24 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.55, delay: i * 0.05 }}
-                className="relative pl-12"
-              >
-                <div className="absolute left-0 top-5 grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-[#0F172A]">
-                  <a.icon className="h-3.5 w-3.5 text-brand-2" />
-                </div>
-                <div className="group rounded-2xl border border-white/8 bg-white/[0.02] p-5 transition-all hover:border-brand/30 hover:bg-white/[0.04]">
-                  <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <div>
-                      <div className="font-display text-lg font-semibold">{a.title}</div>
-                      <p className="mt-1 text-sm text-muted-foreground">{a.note}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`rounded-full px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest ${
-                        a.level === "Winner" ? "bg-amber-400/15 text-amber-300" :
-                        a.level === "Finalist" ? "bg-brand/15 text-brand" :
-                        "bg-white/5 text-muted-foreground"
-                      }`}>{a.level}</span>
-                      <span className="font-mono text-xs text-muted-foreground">{a.year}</span>
-                    </div>
+          {/* Timeline line */}
+          <div
+            className="absolute left-[18px] top-4 bottom-4 w-[2px] rounded-full"
+            style={{ background: `linear-gradient(180deg, transparent, rgba(255,107,53,0.3), rgba(168,85,247,0.3), transparent)` }}
+          />
+
+          <div className="space-y-5">
+            {ACHIEVEMENTS.map((a, i) => {
+              const ls = LEVEL_STYLES[a.level];
+              return (
+                <motion.div
+                  key={a.title}
+                  initial={{ opacity: 0, x: -30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.55, delay: i * 0.07 }}
+                  className="relative pl-14"
+                >
+                  {/* Timeline dot */}
+                  <div
+                    className="absolute left-0 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full"
+                    style={{
+                      background: `${a.color}14`,
+                      border: `2px solid ${a.color}35`,
+                      boxShadow: `0 0 12px ${a.color}25`,
+                    }}
+                  >
+                    <a.icon className="h-3.5 w-3.5" style={{ color: a.color }} />
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  <PremiumCard className="p-5" hover={false}>
+                    <div
+                      className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-500 group-hover:opacity-100 opacity-0"
+                      style={{ background: `linear-gradient(135deg, ${a.color}06, transparent)` }}
+                    />
+                    <div className="flex flex-wrap items-baseline justify-between gap-2">
+                      <div>
+                        <div className="font-display text-lg font-semibold" style={{ color: "#F0F4FF" }}>{a.title}</div>
+                        <p className="mt-1 text-sm" style={{ color: DIM }}>{a.note}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className="rounded-full px-3 py-1 font-mono text-[10px] uppercase tracking-widest"
+                          style={{ background: ls.bg, border: `1px solid ${ls.border}`, color: ls.color }}
+                        >
+                          {a.level}
+                        </span>
+                        <span className="font-mono text-xs" style={{ color: DIM }}>{a.year}</span>
+                      </div>
+                    </div>
+                  </PremiumCard>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -707,9 +1233,7 @@ export function AchievementsSection() {
   );
 }
 
-/* ============================================================
-   EXPERIENCE
-   ============================================================ */
+/* ─── EXPERIENCE ──────────────────────────────────────────────── */
 
 export function ExperienceSection() {
   return (
@@ -717,35 +1241,63 @@ export function ExperienceSection() {
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           kicker="Experience"
-          title={<>Where I've <span className="text-gradient-brand">contributed</span>.</>}
+          title={<>Where I've <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>contributed</span>.</>}
         />
 
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0F172A] to-[#0B1220] p-8 sm:p-10"
+          transition={{ duration: 0.75 }}
+          className="group relative overflow-hidden rounded-3xl p-8 sm:p-10"
+          style={{
+            background: "linear-gradient(145deg, rgba(15,21,40,0.97) 0%, rgba(10,14,28,0.97) 100%)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+          }}
         >
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand/12 blur-3xl" />
+          {/* Gradient border top */}
+          <div
+            className="absolute inset-x-0 top-0 h-[2px] rounded-t-3xl"
+            style={{ background: `linear-gradient(90deg, ${BRAND}, ${VIOLET})` }}
+          />
+
+          {/* Background glow */}
+          <div
+            className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-[0.08]"
+            style={{ background: `radial-gradient(circle, ${BRAND}, transparent 70%)`, filter: "blur(40px)" }}
+          />
+
           <div className="relative grid gap-6 sm:grid-cols-[auto_1fr]">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-2 text-white">
-              <Briefcase className="h-6 w-6" />
+            <div
+              className="flex h-16 w-16 items-center justify-center rounded-2xl text-white"
+              style={{
+                background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                boxShadow: `0 8px 24px rgba(255,107,53,0.35)`,
+              }}
+            >
+              <Briefcase className="h-7 w-7" />
             </div>
             <div>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h3 className="font-display text-2xl font-semibold">Startup Sphere Society</h3>
-                <span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-mono text-[11px] text-muted-foreground">Member · Present</span>
+                <h3 className="font-display text-2xl font-semibold" style={{ color: "#F0F4FF" }}>
+                  Startup Sphere Society
+                </h3>
+                <Tag variant="brand">Member · Present</Tag>
               </div>
-              <div className="mt-1 text-sm text-muted-foreground">ITE • MAIT, GGSIPU</div>
-              <p className="mt-4 text-[15px] leading-relaxed text-muted-foreground">
+              <div className="mt-1 text-sm" style={{ color: DIM }}>ITE • MAIT, GGSIPU</div>
+              <p className="mt-4 text-[15px] leading-relaxed" style={{ color: DIM }}>
                 Collaborating with a cohort of builders on AI and SaaS startup ideas —
                 contributing to innovation activities, technical sessions and pitch days
                 that bridge college-level execution and real-world product thinking.
               </p>
               <div className="mt-5 flex flex-wrap gap-2">
-                {["Innovation Activities","Technical Discussions","Startup Pitch Sessions","Team Collaboration"].map(t => (
-                  <span key={t} className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs text-muted-foreground">{t}</span>
+                {["Innovation Activities", "Technical Discussions", "Startup Pitch Sessions", "Team Collaboration"].map(t => (
+                  <Tag key={t}>{t}</Tag>
                 ))}
               </div>
             </div>
@@ -756,9 +1308,7 @@ export function ExperienceSection() {
   );
 }
 
-/* ============================================================
-   RESUME
-   ============================================================ */
+/* ─── RESUME ──────────────────────────────────────────────────── */
 
 export function ResumeSection() {
   return (
@@ -766,38 +1316,87 @@ export function ResumeSection() {
       <div className="mx-auto max-w-4xl">
         <SectionHeader
           kicker="Resume"
-          title={<>Get the <span className="text-gradient-brand">full story</span>.</>}
+          title={<>Get the <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>full story</span>.</>}
           align="center"
         />
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.96, y: 30 }}
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
           className="relative mx-auto max-w-2xl"
         >
-          <div className="absolute -inset-px rounded-3xl bg-gradient-to-br from-brand/40 via-transparent to-brand-2/40 opacity-50 blur-xl" />
-          <div className="relative overflow-hidden rounded-3xl border border-white/12 bg-gradient-to-br from-[#0F172A] to-[#0B1220] p-8 sm:p-10">
+          {/* Outer glow */}
+          <div
+            className="absolute -inset-4 rounded-3xl opacity-40 blur-2xl"
+            style={{ background: `linear-gradient(135deg, ${BRAND}40, ${VIOLET}40)` }}
+          />
+
+          <div
+            className="relative overflow-hidden rounded-3xl p-8 sm:p-10"
+            style={{
+              background: "linear-gradient(145deg, rgba(15,21,40,0.98) 0%, rgba(10,14,28,0.98) 100%)",
+              border: "1px solid rgba(255,107,53,0.25)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+            }}
+          >
+            {/* Top accent line */}
+            <div
+              className="absolute inset-x-0 top-0 h-[2px] rounded-t-3xl"
+              style={{ background: `linear-gradient(90deg, ${BRAND}, ${VIOLET})` }}
+            />
+
             <div className="grid gap-6 sm:grid-cols-[auto_1fr] sm:items-center">
-              <div className="grid h-20 w-16 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-brand">
-                <FileText className="h-8 w-8" />
+              <div
+                className="flex h-20 w-16 items-center justify-center rounded-xl"
+                style={{
+                  background: `${BRAND}14`,
+                  border: `1px solid ${BRAND}30`,
+                }}
+              >
+                <FileText className="h-8 w-8" style={{ color: BRAND }} />
               </div>
               <div>
-                <div className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">CV.pdf · Updated 2025</div>
-                <h3 className="mt-1 font-display text-2xl font-semibold">Shivanand Ray — Resume</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground">
+                <div className="font-mono text-[11px] uppercase tracking-widest" style={{ color: DIM }}>
+                  CV.pdf · Updated 2025
+                </div>
+                <h3 className="mt-1 font-display text-2xl font-semibold" style={{ color: "#F0F4FF" }}>
+                  Shivanand Ray — Resume
+                </h3>
+                <p className="mt-1.5 text-sm" style={{ color: DIM }}>
                   B.Tech CSE (AI & ML) • Projects, achievements and a deeper technical breakdown.
                 </p>
               </div>
             </div>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-              <a href="/resume.pdf" download="Shivanand_Ray_Resume.pdf" className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:scale-[1.02]">
+              <a
+                href="/resume.pdf"
+                download="Shivanand_Ray_Resume.pdf"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                  boxShadow: `0 8px 24px rgba(255,107,53,0.35)`,
+                }}
+              >
                 <Download className="h-4 w-4" /> Download PDF
               </a>
-              <a href="/resume.pdf" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/[0.07]">
-                <ExternalLink className="h-4 w-4" /> View online
+              <a
+                href="/resume.pdf"
+                target="_blank" rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-all hover:scale-[1.03]"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#F0F4FF",
+                }}
+              >
+                <ExternalLink className="h-4 w-4" /> View Online
               </a>
             </div>
           </div>
@@ -807,9 +1406,7 @@ export function ResumeSection() {
   );
 }
 
-/* ============================================================
-   CONTACT
-   ============================================================ */
+/* ─── CONTACT ─────────────────────────────────────────────────── */
 
 export function ContactSection() {
   const [sent, setSent] = useState(false);
@@ -817,80 +1414,187 @@ export function ContactSection() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSent(true);
-    setTimeout(() => setSent(false), 3000);
+    setTimeout(() => setSent(false), 3500);
   }
 
   return (
     <section id="contact" className="relative px-6 py-32">
+      {/* Top divider */}
+      <div className="mx-auto mb-24 max-w-6xl h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(255,107,53,0.3), rgba(168,85,247,0.3), transparent)" }} />
+
       <div className="mx-auto max-w-6xl">
         <SectionHeader
           kicker="Contact"
-          title={<>Let's build <span className="text-gradient-brand">something real</span>.</>}
+          title={<>Let's build <span style={{
+            background: `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>something real</span>.</>}
           sub="Internships, research, startup roles or collaborations — my inbox is open."
         />
 
         <div className="grid gap-6 lg:grid-cols-5">
+          {/* Form */}
           <motion.form
             onSubmit={onSubmit}
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="rounded-3xl border border-white/10 bg-white/[0.02] p-8 lg:col-span-3 lg:p-10"
+            transition={{ duration: 0.7 }}
+            className="relative overflow-hidden rounded-3xl p-8 lg:col-span-3 lg:p-10"
+            style={{
+              background: "linear-gradient(145deg, rgba(15,21,40,0.97) 0%, rgba(10,14,28,0.97) 100%)",
+              border: "1px solid rgba(255,255,255,0.07)",
+              boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+            }}
           >
+            {/* Top accent */}
+            <div
+              className="absolute inset-x-0 top-0 h-[2px] rounded-t-3xl"
+              style={{ background: `linear-gradient(90deg, ${BRAND}, ${VIOLET})` }}
+            />
+
+            <h3 className="mb-6 font-display text-xl font-semibold" style={{ color: "#F0F4FF" }}>Send a message</h3>
+
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Name</span>
-                <input required className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-brand/60 focus:bg-white/[0.04]" placeholder="Your name" />
-              </label>
-              <label className="block">
-                <span className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Email</span>
-                <input type="email" required className="w-full rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-brand/60 focus:bg-white/[0.04]" placeholder="you@company.com" />
-              </label>
+              {["Name", "Email"].map((label) => (
+                <label key={label} className="block">
+                  <span className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest" style={{ color: DIM }}>
+                    {label}
+                  </span>
+                  <input
+                    required
+                    type={label === "Email" ? "email" : "text"}
+                    className="w-full rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                    style={{
+                      background: "rgba(255,255,255,0.03)",
+                      border: "1px solid rgba(255,255,255,0.09)",
+                      color: "#F0F4FF",
+                    }}
+                    onFocus={(e) => {
+                      (e.currentTarget as HTMLElement).style.borderColor = `${BRAND}60`;
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,107,53,0.04)";
+                    }}
+                    onBlur={(e) => {
+                      (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.09)";
+                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                    }}
+                    placeholder={label === "Email" ? "you@company.com" : "Your name"}
+                  />
+                </label>
+              ))}
             </div>
             <label className="mt-4 block">
-              <span className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest text-muted-foreground">Message</span>
-              <textarea required rows={6} className="w-full resize-none rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-brand/60 focus:bg-white/[0.04]" placeholder="Tell me about your project, role or idea…" />
+              <span className="mb-1.5 block font-mono text-[11px] uppercase tracking-widest" style={{ color: DIM }}>
+                Message
+              </span>
+              <textarea
+                required
+                rows={6}
+                className="w-full resize-none rounded-xl px-4 py-3 text-sm outline-none transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  color: "#F0F4FF",
+                }}
+                onFocus={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = `${BRAND}60`;
+                  (e.currentTarget as HTMLElement).style.background = "rgba(255,107,53,0.04)";
+                }}
+                onBlur={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.09)";
+                  (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                }}
+                placeholder="Tell me about your project, role or idea…"
+              />
             </label>
-            <button type="submit" className="mt-6 group inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition-transform hover:scale-[1.02]">
-              {sent ? "Message queued ✓" : (<>Send message <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>)}
-            </button>
+            <AnimatePresence mode="wait">
+              <motion.button
+                key={sent ? "sent" : "idle"}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                type="submit"
+                className="mt-6 group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white transition-all hover:scale-[1.03]"
+                style={{
+                  background: sent
+                    ? "linear-gradient(135deg, #22c55e, #16a34a)"
+                    : `linear-gradient(135deg, ${BRAND}, ${VIOLET})`,
+                  boxShadow: sent
+                    ? "0 8px 24px rgba(34,197,94,0.35)"
+                    : `0 8px 24px rgba(255,107,53,0.35)`,
+                }}
+              >
+                {sent ? (
+                  "Message queued ✓"
+                ) : (
+                  <>Send Message <Send className="h-4 w-4 transition-transform group-hover:translate-x-0.5" /></>
+                )}
+              </motion.button>
+            </AnimatePresence>
           </motion.form>
 
+          {/* Contact info */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.7, delay: 0.12 }}
             className="space-y-3 lg:col-span-2"
           >
             {[
-              { icon: Mail, label: "Email", value: "shivanandray215@gmail.com", href: "mailto:shivanandray215@gmail.com" },
-              { icon: Github, label: "GitHub", value: "shivanandray215", href: "https://github.com/shivanandray215" },
-              { icon: Linkedin, label: "LinkedIn", value: "shivanandray215", href: "https://linkedin.com/in/shivanandray215" },
-            ].map(({ icon: Icon, label, value, href }) => (
-              <a key={label} href={href} target="_blank" rel="noreferrer"
-                className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition-all hover:border-brand/30 hover:bg-white/[0.04]">
-                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/10 bg-white/[0.03] text-brand-2 transition-colors group-hover:text-brand">
-                  <Icon className="h-4.5 w-4.5" />
+              { icon: Mail, label: "Email", value: "shivanandray215@gmail.com", href: "mailto:shivanandray215@gmail.com", color: BRAND },
+              { icon: Github, label: "GitHub", value: "shivanandray215", href: "https://github.com/shivanandray215", color: VIOLET },
+              { icon: Linkedin, label: "LinkedIn", value: "shivanandray215", href: "https://linkedin.com/in/shivanandray215", color: BRAND },
+            ].map(({ icon: Icon, label, value, href, color }) => (
+              <a
+                key={label} href={href} target="_blank" rel="noreferrer"
+                className="group flex items-center gap-4 rounded-2xl p-5 transition-all hover:scale-[1.02]"
+                style={{
+                  background: "linear-gradient(145deg, rgba(15,21,40,0.9) 0%, rgba(10,14,28,0.9) 100%)",
+                  border: "1px solid rgba(255,255,255,0.07)",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = `${color}35`;
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.07)";
+                }}
+              >
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all group-hover:scale-110"
+                  style={{ background: `${color}14`, border: `1px solid ${color}28` }}
+                >
+                  <Icon className="h-4 w-4" style={{ color }} />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">{label}</div>
-                  <div className="truncate text-sm font-medium">{value}</div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest" style={{ color: DIM }}>{label}</div>
+                  <div className="truncate text-sm font-medium" style={{ color: "#F0F4FF" }}>{value}</div>
                 </div>
-                <ArrowUpRight className="ml-auto h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                <ArrowUpRight className="ml-auto h-4 w-4 transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5" style={{ color: DIM }} />
               </a>
             ))}
 
-            <div className="rounded-2xl border border-white/8 bg-white/[0.02] p-5">
-              <div className="flex items-center gap-1.5 text-xs">
+            {/* Availability card */}
+            <div
+              className="rounded-2xl p-5"
+              style={{
+                background: "rgba(34,197,94,0.06)",
+                border: "1px solid rgba(34,197,94,0.2)",
+              }}
+            >
+              <div className="flex items-center gap-2 text-xs">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-70" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                <span className="font-mono uppercase tracking-widest text-emerald-300/90">Available</span>
+                <span className="font-mono font-medium uppercase tracking-widest" style={{ color: "#6ee7b7" }}>
+                  Available Now
+                </span>
               </div>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-xs leading-relaxed" style={{ color: DIM }}>
                 Open to internships, research collaborations and startup roles in
                 AI, ML and full-stack engineering — globally, remote or on-site.
               </p>
@@ -898,12 +1602,21 @@ export function ContactSection() {
           </motion.div>
         </div>
 
-        <div className="mt-20 flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-8 sm:flex-row">
-          <div className="font-mono text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Shivanand Ray
+        {/* Footer */}
+        <div
+          className="mt-20 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row"
+          style={{ borderColor: "rgba(255,255,255,0.06)" }}
+        >
+          <div className="font-mono text-xs" style={{ color: DIM }}>
+            © {new Date().getFullYear()} Shivanand Ray · All rights reserved
           </div>
-          <div className="text-xs text-muted-foreground">
-            Designed & engineered with React, TypeScript & Framer Motion.
+          <div className="flex items-center gap-2 text-xs" style={{ color: DIM }}>
+            <span>Built with</span>
+            <span style={{ color: BRAND }}>React</span>
+            <span>+</span>
+            <span style={{ color: VIOLET }}>TypeScript</span>
+            <span>+</span>
+            <span style={{ color: GOLD }}>Framer Motion</span>
           </div>
         </div>
       </div>
