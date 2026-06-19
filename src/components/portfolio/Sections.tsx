@@ -793,10 +793,10 @@ export function ResumeSection() {
             </div>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3 sm:justify-start">
-              <a href="#" className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:scale-[1.02]">
+              <a href="/resume.pdf" download="Shivanand_Ray_Resume.pdf" className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-transform hover:scale-[1.02]">
                 <Download className="h-4 w-4" /> Download PDF
               </a>
-              <a href="#" className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/[0.07]">
+              <a href="/resume.pdf" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.03] px-5 py-2.5 text-sm font-semibold transition-colors hover:bg-white/[0.07]">
                 <ExternalLink className="h-4 w-4" /> View online
               </a>
             </div>
