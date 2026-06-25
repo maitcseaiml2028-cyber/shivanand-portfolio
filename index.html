@@ -6,9 +6,18 @@
     <title>Shivanand Ray — AI/ML Engineer & Full-Stack Developer</title>
     <meta name="description" content="Portfolio of Shivanand Ray — AI/ML engineer, full-stack developer, and startup builder. Building intelligent healthcare, fintech, and SaaS products." />
     
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <!-- Google Fonts loaded with crossorigin fallback -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      /* Fallback font stack — ensures premium look even without CDN */
+      :root {
+        --font-display-fb: "Syne", "Space Grotesk", -apple-system, "Segoe UI", system-ui, sans-serif;
+        --font-sans-fb: "Inter", -apple-system, "Segoe UI", system-ui, sans-serif;
+        --font-mono-fb: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
