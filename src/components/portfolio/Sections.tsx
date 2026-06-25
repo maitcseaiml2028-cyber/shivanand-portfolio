@@ -227,7 +227,7 @@ export function HeroSection() {
                 className="font-display font-bold tracking-[-0.03em] leading-[0.92]"
                 style={{ fontSize: "clamp(3.5rem, 10vw, 8rem)", color: "#F0F4FF" }}
               >
-                <span className="block overflow-hidden">
+                <span className="block overflow-hidden whitespace-nowrap">
                   {"Shivanand".split("").map((c, i) => (
                     <motion.span
                       key={i}
@@ -240,7 +240,7 @@ export function HeroSection() {
                     </motion.span>
                   ))}
                 </span>
-                <span className="block overflow-hidden">
+                <span className="block overflow-hidden whitespace-nowrap">
                   {"Ray.".split("").map((c, i) => (
                     <motion.span
                       key={i}
